@@ -18,7 +18,8 @@ class TaskResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'card_id' => $this->card_id,
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
+            'is_done' => $this->is_done
         ];
     }
 }

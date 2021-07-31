@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Http\Resources\TaskResource;
 use App\Http\Requests\TaskStoreRequest;
+use App\Http\Requests\TaskUpdateRequest;
 
 class TaskController extends Controller
 {
@@ -51,9 +52,11 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(TaskUpdateRequest $request, Task $task)
     {
-        //
+        $task->update($request->validated());
+
+        return new TaskResource($task);
     }
 
     /**

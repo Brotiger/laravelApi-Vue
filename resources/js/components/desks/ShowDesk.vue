@@ -45,13 +45,19 @@
                                             .invalid-feedback(v-if="!$v.current_card.name.maxLength") Макс. количество символов: {{ $v.current_card.name.$params.maxLength.max }}.
                                         h5.modal-title#exampleModalLabel(v-if="!show_card_name_input" style="cursor: pointer" @click="show_card_name_input = true") {{ current_card.name }}
                                             i.fas.fa-pencil-alt.ms-2
-                                        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                                        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close" @click="task_input_name_id = null")
                                     .modal-body
-                                        .form-check.d-flex.justify-content-between.align-items-center(v-for="task in current_card.tasks")
-                                            label.form-check-label(for="my-input") {{ task.name }}
+                                        .form-check.d-flex.justify-content-between.align-items-center(v-for="(task, index) in current_card.tasks")
+                                            div
+                                                form.d-inline(@submit.prevent="updateTask(current_card.tasks[index])" v-if="task_input_name_id == task.id")
+                                                    input.d-inline.form-control(type="text" placeholder="Введите название задачи" v-model="current_card.tasks[index].name")
+                                                label.form-check-label(for="my-input" v-else) {{ task.name }}
                                                 input#my-input.form-check-input(type="checkbox" name="" value="true")
-                                            button.btn.btn-danger(type="button" @click="deleteTask(task.id)")
-                                                i.fas.fa-times
+                                            div
+                                                button.btn(@click="changeTaskName(task.id)" v-if="task_input_name_id == null")
+                                                    i.fas.fa-pencil-alt
+                                                button.btn.btn-danger(type="button" @click="deleteTask(task.id)")
+                                                    i.fas.fa-times
                                         form.mt-3(@submit.prevent="addNewTask")
                                             .form-group
                                                 input.form-control.mt-2(type="text" placeholder="Введите название задачи" v-model="new_task_name" :class="{ 'is-invalid': $v.new_task_name.$error }")
@@ -83,11 +89,39 @@ export default {
             current_card: [],
             show_card_name_input: false,
             new_task_name: null,
+            task_input_name_id: null
         }
     },
 
     methods: {
+        updateTask(task){
+            axios.post('/api/V1/tasks/' + task.id, {
+                    _method: 'PUT',
+                    name: task.name,
+                    is_done: task.is_done,
+                    card_id:  task.card_id
+                })
+                .then(response => {
+                    this.task_input_name_id = null
+                })
+                .catch(error => {
+                    console.log(error)
+                    if(error.response.data.errors.name){
+                        this.errors = []
+                        this.errors.push(error.response.data.errors.name[0])
+                    }
+                    this.errored = true
+                }).finally(() => {
+                    this.loading = false
+                })
+        },
+
+        changeTaskName(id){
+            this.task_input_name_id = id
+        },
+
         deleteTask(id){
+            this.task_input_name_id = null
             axios.post('/api/V1/tasks/' + id, {
                     _method: 'DELETE',
                 })
