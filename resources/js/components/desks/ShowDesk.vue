@@ -51,8 +51,8 @@
                                             div
                                                 form.d-inline(@submit.prevent="updateTask(current_card.tasks[index])" v-if="task_input_name_id == task.id")
                                                     input.d-inline.form-control(type="text" placeholder="Введите название задачи" v-model="current_card.tasks[index].name")
-                                                label.form-check-label(for="my-input" v-else) {{ task.name }}
-                                                input#my-input.form-check-input(type="checkbox" name="" value="true")
+                                                label.form-check-label(for="my-input" v-else :for="'inlineCheckbox' + index") {{ task.name }}
+                                                input#my-input.form-check-input(:id="'inlineCheckbox' + index" type="checkbox" v-model="current_card.tasks[index].is_done" @change="updateTask(current_card.tasks[index])")
                                             div
                                                 button.btn(@click="changeTaskName(task.id)" v-if="task_input_name_id == null")
                                                     i.fas.fa-pencil-alt
